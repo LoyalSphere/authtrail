@@ -27,14 +27,15 @@ module AuthTrail
           if opts[:message]
             request = ActionDispatch::Request.new(env)
             identity = request.params[opts[:scope]] && request.params[opts[:scope]][:email] rescue nil
-
+            user = Admin.find_by(email: identity) if identity.present?
             AuthTrail.track(
               strategy: "database_authenticatable",
               scope: opts[:scope].to_s,
               identity: identity,
               success: false,
               request: request,
-              failure_reason: opts[:message].to_s
+              failure_reason: opts[:message].to_s,
+              user: user
             )
           end
         end
